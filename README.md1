@@ -1,0 +1,125 @@
+Lab 2 - Hadoop MapReduce for Top K IP Addresses
+✅ Objective
+This lab processes web server logs using Hadoop MapReduce to:
+
+Part 1: Find the top K IP addresses for each hour.
+Part 2: Find the top K IP addresses in a specified time period (like 0-1 hours).
+📂 Project Structure
+lua
+Copy
+Edit
+lab2/
+├── mapper.py
+├── reducer_k.py
+├── reducer_time.py
+├── sample.log
+├── README.md
+└── report.pdf
+⚙️ Environment Setup
+Ensure you have the following installed on your Ubuntu instance:
+
+Hadoop (configured and running)
+Python 3
+Verify Python 3:
+bash
+Copy
+Edit
+which python3
+Example output:
+
+bash
+Copy
+Edit
+/usr/bin/python3
+🚀 Execution Steps
+1️⃣ Upload Files
+Place these files on your Ubuntu instance:
+
+mapper.py
+reducer_k.py
+reducer_time.py
+sample.log
+2️⃣ Provide execute permission:
+bash
+Copy
+Edit
+chmod +x mapper.py reducer_k.py reducer_time.py
+3️⃣ Upload log file to HDFS:
+bash
+Copy
+Edit
+hdfs dfs -mkdir -p /user/hduser/logs
+hdfs dfs -put sample.log /user/hduser/logs/
+🏃 Part 1: Top K IPs per Hour
+Run the MapReduce job:
+bash
+Copy
+Edit
+hadoop jar /home/exouser/hadoop-3.4.0/share/hadoop/tools/lib/hadoop-streaming-3.4.0.jar \
+-files /home/exouser/mapper.py,/home/exouser/reducer_k.py \
+-input /user/hduser/logs/sample.log \
+-output /user/hduser/output \
+-mapper "/usr/bin/env python3 mapper.py" \
+-reducer "/usr/bin/env python3 reducer_k.py 5"
+Note: Replace 5 with any value of K.
+
+Check output:
+bash
+Copy
+Edit
+hdfs dfs -cat /user/hduser/output/part-00000
+🏃 Part 2: Top K IPs in a Time Period
+Run the MapReduce job:
+bash
+Copy
+Edit
+hadoop jar /home/exouser/hadoop-3.4.0/share/hadoop/tools/lib/hadoop-streaming-3.4.0.jar \
+-files /home/exouser/mapper.py,/home/exouser/reducer_time.py \
+-input /user/hduser/logs/sample.log \
+-output /user/hduser/output_time \
+-mapper "/usr/bin/env python3 mapper.py" \
+-reducer "/usr/bin/env python3 reducer_time.py 5 TIME_PERIOD=0-3"
+Note:
+
+Replace 5 with any value of K.
+Replace TIME_PERIOD=0-3 with your desired time range.
+Check output:
+bash
+Copy
+Edit
+hdfs dfs -cat /user/hduser/output_time/part-00000
+🧪 Local Testing (without Hadoop)
+You can test the flow locally on the Ubuntu instance:
+
+bash
+Copy
+Edit
+cat sample.log | ./mapper.py | sort | ./reducer_k.py 5
+For part 2 (with time period):
+
+bash
+Copy
+Edit
+cat sample.log | ./mapper.py | sort | ./reducer_time.py 5 0-3
+📝 Report
+The report.pdf contains:
+
+Approach explanation.
+Screenshots.
+Observations.
+Challenges.
+📦 Packaging Instructions
+For submission:
+
+Create a .tar file including:
+mapper.py
+reducer_k.py
+reducer_time.py
+sample.log
+README.md
+report.pdf
+Create .tar:
+bash
+Copy
+Edit
+tar -cvf lab2_submission.tar mapper.py reducer_k.py reducer_time.py sample.log README.md report.pdf
